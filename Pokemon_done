@@ -1,0 +1,139 @@
+# dictionar with pokemon type advantages, first type in value is stronger than second in pair 
+pokemon_advantages = { 'adv_1': ["Fire", "Grass"], 'adv_2':["Water", "Fire"], 'adv_3': ["Grass", "Water"]  }
+
+class Pokemon():
+  def __init__(self, name, level, p_type):
+    self.name = name
+    self.level = level
+    self.p_type = p_type
+    self.health = 100 * level
+    self.max_health = 100 * level
+    self.exp = 0
+    self.max_exp = 5 * level
+    self.knocked_down = False
+
+  def __repr__(self):
+    return self.name
+    return self.level
+    return self.health
+    return self.p_type
+    return self.exp
+    return self.knocked_down
+
+  def knocked_out(self):
+    self.knocked_down = True
+    self.health = 0
+    print("{name} is knocked down.".format(name = self.name))
+
+  def lose_health(self, lose_health):
+    self.health -= lose_health
+    if self.health > 0:
+      print("{name} lose health! Curent health brings: {health} points".format(name=self.name, health=self.health))
+    else:
+      self.knocked_out()
+    
+  def gain_health (self, add_health):
+    self.health += add_health
+    if self.knocked_down == True:
+      self.health = 0
+      print("{name} is KO!!! You should first revive Pokemon".format(name=self.name))
+    elif self.health < self.max_health:
+      print("{name} recovered +{h} health points, current have {health} health points".format(h = add_health, name=self.name, health=self.health))
+    else:
+      self.health = self.max_health
+      print("{name} recovered MAX health points, current have {health} health points".format(name=self.name, health=self.health))
+  
+  def revive(self):
+    if self.knocked_down == True:
+      self.knocked_down = False
+      self.health = 100
+      print ("{name} is revive!!!".format(name = self.name))
+      print ("{name} current health points: {health}".format(name = self.name, health = self.health))
+    else: 
+      print("{p} is still alive.".format(p = self.name))
+      
+  def attack(self, other_p, ind = 20):
+    if self.knocked_down == True or other_p.knocked_down == True:
+      print("One of Pokemon's are KO, attack is not possible.")
+    else:
+      damage = (self.level*ind)/2
+      for p1,p2 in pokemon_advantages.values():
+        if self.p_type == p1 and other_p.p_type == p2:
+          damage = 2 * self.level * ind
+          break         
+        else:
+          continue
+      print( self.name+" attack " + other_p.name +" for "+str(damage))
+      other_p.lose_health(damage)
+      self.exp_up()
+
+  def exp_up(self):
+    self.exp+=1
+    if self.exp < self.max_exp:
+      print("{name} receive new exp points. Total exp points is {exp}.".format(name=self.name, exp=self.exp))
+    else:
+      self.exp = 0
+      self.level+= 1
+      print("Congratulations {name} level up!!!. New level is {lvl}.".format(name=self.name, lvl=self.level))
+
+
+class Trainer(): 
+  def __init__(self, name, pokemons, current_pokemon = "N/A"):
+    self.name = name
+    self.pokemons = pokemons
+    self.potions = int(len(pokemons))
+    self.current_pokemon = current_pokemon
+
+  def __repr__(self):
+    self.name
+    self.pokemons
+    self.potions
+    self.current_pokemon
+
+  def potion(self):
+    self.potions -=1
+    if self.potions > 0:
+      pokemon = self.current_pokemon
+      pokemon.gain_health(50)
+    else:
+      print("No potions.")
+    
+  def pick_p(self, pokemon):# set a current pokemon,
+    print ("Available pokemons: "+ str(self.pokemons)+"\n""Your choice is {p}".format(p = pokemon))
+    if pokemon in self.pokemons:
+      if pokemon.knocked_down == False:
+        self.current_pokemon = pokemon
+        print ("{pokemon} is active pokemon".format(pokemon = self.current_pokemon.name))
+      else:
+        print("You can't pick this pokemon, {p} is KO.".format(p = pokemon.name ))
+    else:
+      print("You can't pick this pokemon, {p} is not available for You.".format(p= pokemon.name))
+
+  def attack_other_trainer(self, other_trainer): # attack between current pokemons, belonging to two different trainers  
+    if self.current_pokemon != "N/A" and other_trainer.current_pokemon!= "N/A" :
+      print("{t1} pick {p1} and attack {t2} who pick to defence a {p2}".format(t1 = self.name, p1 = self.current_pokemon.name, t2 = other_trainer.name, p2 = other_trainer.current_pokemon.name))
+      self.current_pokemon.attack(other_trainer.current_pokemon)
+    else:
+      if self.current_pokemon == "N/A" and other_trainer.current_pokemon == "N/A":
+        print ("{t1} and {t2} should pick pokemons to fight.".format(t1 = self.name, t2 = other_trainer.name))
+      elif self.current_pokemon == "N/A":
+        print ("{t1} should pick pokemon to fight.".format(t1 = self.name))
+      else:
+        print ("{t1} should pick pokemon to fight.".format(t1 = other_trainer.name))
+
+  def add_p(self, new_p): # add new pokemon to trainer pocket with available pokemons
+    if not new_p in  self.pokemons:
+      self.pokemons.append(new_p)
+      print("{np} is added to Your pocket.".format(np = new_p.name))
+      print("Current pocket:")
+      print(self.pokemons)
+    else:
+      print("You had {np} in pocket before.".format( np = new_p.name))   
+
+# Test it :) 
+a = Pokemon("Pokemon A", 1, "Fire")
+b = Pokemon("Pokemon B", 1,"Grass")
+c = Pokemon("Pokemon C", 1,"Water")
+d = Pokemon("Pokemon D", 1,"Water")
+t1 = Trainer("Trainer 1", [a,b,c,d])
+t2 = Trainer("Trainer 2", [a,b,d])
